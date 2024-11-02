@@ -5,6 +5,14 @@
 **/renders
 *.npy
 *.ply
+*.png
+
+**/build
+**/outputs
+**/results
+**/data
+**/nerfstudio
+**/*.vscode
 
 # Platform-dependent files
 *.DS_Store

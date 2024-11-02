@@ -1,66 +1,72 @@
+
 <p align="center">
 
-  <h1 align="center"><img src="assets/favicon.svg" width="25"> Splat-MOVER: Multi-Stage, Open-Vocabulary Robotic Manipulation via Editable Gaussian Splatting</h1>
+  <h1 align="center">SplatBot: Modular Robotic Simulation Stack for Adaptive Scene Interaction</h1>
   <p align="center"> 
     <span class="author-block">
-        <a href="/">Ola Shorinwa</a><sup>&#42;</sup>,</span>
+        <a>Juan Atehortúa</a><sup>&#42;</sup>,</span>
     <span class="author-block">
-        <a href="https://scholar.google.com/citations?user=D1OiGH8AAAAJ&hl=en">Johnathan Tucker</a><sup>&#42;</sup>,</span>
+        <a>Chikaha Tsuji</a><sup>&#42;</sup>,</span>
     <span class="author-block">
-        <a href="/">Aliyah Smith</a>,
-    </span>
-    <span class="author-block">
-        <a href="https://scholar.google.com/citations?hl=en&user=feH32sgAAAAJ">Aiden Swann</a>,
-    </span>
-    <span class="author-block">
-        <a href="https://scholar.google.com/citations?hl=en&user=u9ZQdTwAAAAJ">Timothy Chen</a>,
-    </span>
-    <span class="author-block">
-        <a href="https://scholar.google.com/citations?hl=en&user=ZfxUwNEAAAAJ">Roya Firoozi</a>,
-    </span>
-    <span class="author-block">
-        <a href="https://scholar.google.com/citations?hl=en&user=x2ZPRfoAAAAJ">Monroe Kennedy III</a>,
-    </span>
-    <span class="author-block">
-        <a href="https://scholar.google.com/citations?hl=en&user=-EqbTXoAAAAJ">Mac Schwager</a>
-    </span>
+        <a>Harrison Zhang</a><sup>&#42;</sup>,</span>
   </p>
-  <p align="center"><strong>Stanford University</strong></p>
+  <p align="center"><strong>MIT</strong></p>
   <p align="center"><strong><sup>&#42;</sup>Equal Contribution.</strong></p>
-  
-  <h3 align="center"><a href="https://splatmover.github.io/"> Project Page</a> | <a href= "https://arxiv.org/abs/2405.04378">arXiv</a> </h3>
-  <div align="center"></div>
-</p>
-<p align="center">
-  <a href="">
-    <img src="assets/splat_mover.png" width="80%">
-  </a>
 </p>
 
-## Splat-MOVER
-We present Splat-MOVER, a modular robotics stack for open-vocabulary robotic manipulation,which leverages the editability of Gaussian Splatting (GSplat) scene representations to enable multi-stage manipulation tasks. Splat-MOVER consists of: (i) ASK-Splat, a GSplat representation that distills semantic and grasp affordance features into the 3D scene. ASK-Splat enables geometric, semantic, and affordance understanding of 3D scenes, which is critical for many robotics tasks; (ii) SEE-Splat, a real-time scene-editing module using 3D semantic masking and infilling to visualize the motions of objects that result from robot interactions in the real-world. SEE-Splat creates a “digital twin” of the evolving environment throughout the manipulation task; and (iii) Grasp-Splat, a grasp generation module that uses ASK-Splat and SEE-Splat to propose affordance-aligned candidate grasps for open-world objects.
+## SplatBot
+Abstract here.
 
 ## Installation
-This repository utilizes [Nerfstudio](https://docs.nerf.studio/quickstart/installation.html), [GraspNet](https://github.com/graspnet/graspnet-baseline), and [VRB](https://github.com/shikharbahl/vrb). This repo has been verified to work with the following package versions: `nerfstudio==1.1.0`, `gsplat=0.1.13`, and `lang-sam` with the commit SHA `a1a9557`.
-Please install these packages from source, then proceed with the following steps:
+This project builds off [Splat-MOVER](https://splatmover.github.io), which utilizes [Nerfstudio](https://docs.nerf.studio/quickstart/installation.html), [GraspNet](https://github.com/graspnet/graspnet-baseline), and [VRB](https://github.com/shikharbahl/vrb). This repository has been verified to work with the following package versions: `nerfstudio==1.1.0`, `gsplat==0.1.13`, and `lang-sam` with commit SHA `a1a9557`.
 
-1. Clone this repo.
+1. In the base of the repo, set up environment variables and check that you have CUDA installed.
 ```
-git clone git@github.com:StanfordMSL/Splat-MOVER.git
+source env.sh
 ```
-
-2. Install `sagesplat` as a Python package.
+2. Set up `conda` environment `nerfstudio` with Python `3.10.0` and activate it.
 ```
-python -m pip install -e .
+conda create --name nerfstudio
+conda activate nerfstudio  
+conda install python==3.10
 ```
-
-3. Register `sagesplat` with Nerfstudio.
+3. Create a new Python virtual environment and activate it.
+```
+python3.10 -m venv nerfstudio
+source nerfstudio/bin/activate
+python -m pip install --upgrade pip
+```
+4. Verify that your Python and pip version and path (should match venv path) are correct.
+```
+which pip
+which python
+python --version
+```
+5. Run the install script, which also installs the libraries in `requirements.txt`. You may ignore the `numpy` version resolution error if it comes up.
+```
+bash install_lib.sh
+```
+6. Check that CUDA and environment variables are set up correctly. If the below command errors, it is likely that `export TCNN_CUDA_ARCHITECTURES=80` is the incorrect version set in `env.sh`. Read the error and set `TCNN_CUDA_ARCHITECTURES` as the correct version.
+```
+python -c "import tinycudann"
+```
+Perform a quick sanity check here. The major version of CUDA that PyTorch is compiled with should match that of your drivers and compiler path. E.g. `12.4.*` and `12.1.*` is ok, while `11.8.*` and `12.1.*` is not.
+```
+nvidia-smi
+which nvcc
+nvcc --version
+python -c "import torch; print('CUDA Available:', torch.cuda.is_available(), 'CUDA Version:', torch.version.cuda)"
+```
+7. Register `sagesplat` with Nerfstudio (sets up command line tools).
 ```
 ns-install-cli
 ```
-
-Now, you can run `sagesplat` like other models in Nerfstudio using: 
+8. Now, you can run `sagesplat` like other models in Nerfstudio using the following command. This will generate a shareable link where you can visualize the training.
 ```
-ns-train sagesplat --data <path to the data directory for a given scene>
+ns-train sagesplat --data <path to the data directory for a given scene> --viewer.websocket-port 7008 --viewer.make-share-url True
+```
+For instance, using part of our dataset below (assuming the data is unzipped in `data`):
+```
+ns-train sagesplat --data data/asknerf_pot_burner_orange_2 --viewer.websocket-port 7008 --viewer.make-share-url True
 ```
 You can try out the data used in the experiments [here](https://drive.google.com/drive/folders/1rMsVu8iJ4sm1TCf52bX_gTJOGPKmAlfJ?usp=sharing).

@@ -34,18 +34,22 @@ from utils.grasp_utils import *
 # # mode
 gaussian_splatting = True
 
+import os
+from pathlib import Path
+
+splat_home = os.getenv('SPLAT_HOME')
 if gaussian_splatting:
     # ARMLAB:
-    config_path = Path(f"<config.yml>")
+    config_path = Path(f"{splat_home}/outputs/asknerf_pot_burner_orange_2/sagesplat/2024-10-29_152642/config.yml")
 else:
     # ASK-NeRF
-    config_path = Path(f"<config.yml>")
+    config_path = Path(f"{splat_home}/outputs/asknerf_pot_burner_orange_2/sagesplat/2024-10-29_152642/config.yml")
 # %%
 # rescale factor
 res_factor = None
 
 # option to enable visualization of the environment point cloud
-enable_visualization_pcd = False
+enable_visualization_pcd = True
 
 # device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,7 +58,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 nerf = NeRF(
     config_path=config_path,
     res_factor=res_factor,
-    test_mode="test",  # Options: "inference", "val", "test"
+    test_mode="inference",  # Options: "inference", "val", "test"
     dataset_mode="train",
     device=device,
 )
@@ -70,10 +74,10 @@ eval_poses = nerf.get_poses()
 eval_imgs = nerf.get_images()
 
 # option to generate a dense point cloud
-generate_dense_pcd = False
+generate_dense_pcd = True
 
 # option to generate a mesh
-generate_mesh = False
+generate_mesh = True
 
 if generate_dense_pcd:
     from utils.exporter_utils import generate_point_cloud
@@ -103,14 +107,14 @@ if generate_dense_pcd:
         pcd_down = env_attr.voxel_down_sample(0.01)
 
         # visualize point cloud
-        o3d.visualization.draw_plotly([pcd_down])
+        draw_plotly(geometry_list=[pcd_down], image_path=f"{splat_home}/pcd_down.png")
 else:
     # generate the point cloud of the environment
     env_pcd, env_pcd_mask, env_attr = nerf.generate_point_cloud(use_bounding_box=False)
 
     if enable_visualization_pcd:
         # visualize point cloud
-        o3d.visualization.draw_plotly([env_pcd])
+        draw_plotly(geometry_list=[env_pcd], image_path=f"{splat_home}/env_pcd.png")
 
 # generate a mesh
 if generate_mesh:
@@ -141,7 +145,7 @@ positives = "orange and black powerdrill"
 negatives = "object, things, stuff, texture"
 
 # option to render the point cloud of the entire environment or from a camera
-camera_semantic_pcd = False
+camera_semantic_pcd = True
 
 if camera_semantic_pcd:
     # camera pose
@@ -211,7 +215,7 @@ cloud_masked = np.asarray(grasp_pcd.points)[similarity_mask, ...]
 color_masked = np.asarray(grasp_pcd.colors)[similarity_mask, ...]
 
 # option to enable visualization of the masked point cloud
-enable_visualization_masked_pcd = True
+enable_visualization_masked_pcd = False
 
 # create the point cloud
 pcd = o3d.geometry.PointCloud()
@@ -273,7 +277,8 @@ gg = cand_grasps
 
 # visualize the grasps
 visualize_grasps(
-    gg, pcd=pcd, num_vis_grasp=num_vis_grasp, grasp_group_color=grasp_group_color
+    gg, pcd=pcd, num_vis_grasp=num_vis_grasp, grasp_group_color=grasp_group_color,\
+    image_path=f"{splat_home}/proposed_grasps.png"
 )
 
 # # # # #
@@ -310,6 +315,7 @@ visualize_grasps(
     pcd=pcd,
     num_vis_grasp=num_vis_grasp,
     grasp_group_color=grasp_group_color,
+    image_path=f"{splat_home}/ranked_grasps.png"
 )
 
 # # # # #
